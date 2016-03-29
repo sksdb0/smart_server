@@ -55,7 +55,11 @@ private:
                    const messageNode& message,
                    Timestamp)
     {
-        if (message.type == DEVICELOGIN)
+        if (message.type == SIGNUP)
+        {
+
+        }
+        else if (message.type == DEVICELOGIN)
         {
             int32_t deviceid = 0;
             if (DeviceLogin(message, deviceid))
@@ -87,17 +91,7 @@ private:
         }
         else if (message.type == CONTROL)
         {
-     //       int32_t id = conn->getid(); 
-     //       LOG_INFO << id;
             std::vector<int32_t> devices;
-     //       GetDeviceByUserID(id, devices);
-     //       if (device_.FindDevice(id, device))
-     //       {
-     //           char buf[128] = {0};
-     //           sendpack(buf, CONTROL, "222", "111");
-     //           codec_.send(get_pointer(device), StringPiece(buf, sizeof(messageNode)));
-     //       }
-
             if (GetDeviceByUserID(conn->getid(), devices))
             {
                 for (std::vector<int32_t>::iterator it = devices.begin(); it != devices.end(); it++)

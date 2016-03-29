@@ -9,10 +9,26 @@ enum messageType
     CONTROL,
     HEARTBEAT
 };
+
+enum terminalType
+{
+    WALLSWITCH = 0,
+};
+
+enum controlType
+{
+    RESET = 0,
+    OPEN,
+    CLOSE
+};
+
+enum timerType
+{
+};
  
 struct messageNode
 {   
-int32_t type;
+    int32_t type;
     union
     {
         struct
@@ -20,6 +36,12 @@ int32_t type;
             char name[20];
             char password[32];
         }loginInfo;
+        struct
+        {
+            int32_t terminalid;
+            int32_t terminaltype;
+            int32_t controltype;
+        }terminalControl;
     };
 };
 

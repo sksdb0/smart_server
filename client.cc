@@ -115,9 +115,6 @@ int main(int argc, char* argv[])
         std::string line;
         while (std::getline(std::cin, line))
         {
-            char buf[256];
-            sendpack(buf, CONTROL, "asdf", "fdas");
-            client.write(StringPiece(buf, sizeof(messageNode)));
         }
         client.disconnect();
         CurrentThread::sleepUsec(1000*1000);  // wait for disconnect, see ace/logging/client.cc

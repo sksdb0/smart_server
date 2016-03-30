@@ -23,7 +23,12 @@ public:
       : message_(messagecb)
     {
     }
-  
+ 
+    bool IsHeader(const void* ptr)
+    {
+        if (memcmp(header, ptr, sizeof(header)) == 0) return true;
+        return false;
+    }
   
     void onMessage(const muduo::net::TcpConnectionPtr& conn,
                    muduo::net::Buffer* buf,
@@ -33,9 +38,9 @@ public:
         {
             // FIXME: use Buffer::peekInt32()
             const void* data = buf->peek();
-            int32_t be32 = *static_cast<const int32_t*>(data); // SIGBUS
+            int32_t be32 = *(static_cast<const int32_t*>(data) + 1); // SIGBUS
             const int32_t len = muduo::net::sockets::networkToHost32(be32);
-            // printf("%d\n", len);
+//            printf("%d\n", len);
             if (len > 65536 || len < 0)
             {
                 LOG_ERROR << "Invalid length " << len;
@@ -44,11 +49,14 @@ public:
             }
             else if (buf->readableBytes() >= len + kHeaderLen)
             {
-                buf->retrieve(kHeaderLen);
-                messageNode n;
-                memcpy(&n, buf->peek(), sizeof(messageNode));
-        //        printf("%d %s %s\n", n.type, n.loginInfo.name, n.loginInfo.password);
-                message_(conn, n, receiveTime);
+                buf->retrieve(kHeaderLen + sizeof(header));
+                if (IsHeader(data))
+                {
+                    messageNode n;
+                    memcpy(&n, buf->peek(), sizeof(messageNode));
+        //            printf("%d %s %s\n", n.type, n.loginInfo.name, n.loginInfo.password);
+                    message_(conn, n, receiveTime);
+                }
                 buf->retrieve(len);
             }
             else
@@ -67,12 +75,15 @@ public:
         int32_t len = static_cast<int32_t>(message.size());
         int32_t be32 = muduo::net::sockets::hostToNetwork32(len);
         buf.prepend(&be32, sizeof be32);
+        buf.prepend(header, sizeof header);
         conn->send(&buf);
     }
   
 private:
+    const static unsigned char header[4];
     MessageCallback message_;
     const static size_t kHeaderLen = sizeof(int32_t);
 };
 
+const unsigned char LengthHeaderCodec::header[4] = {0xAA, 0x55, 0, 0}; 
 #endif  // MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H

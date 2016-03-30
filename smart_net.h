@@ -45,13 +45,13 @@ struct messageNode
     };
 };
 
-int32_t sendpack(void* buf, const messageNode& node)
+static inline int32_t sendpack(void* buf, const messageNode& node)
 {
     memcpy(buf, &node, sizeof(messageNode));
     return sizeof(messageNode);
 }
 
-int32_t sendpack(void* buf, const int32_t type, const char* name, const char* password)
+static inline int32_t sendpack(void* buf, const int32_t type, const char* name, const char* password)
 {
     memcpy(buf, &type, 4);
     memcpy((static_cast<char*>(buf) + 4), name, 20);

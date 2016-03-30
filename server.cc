@@ -31,6 +31,14 @@ public:
   
     void start()
     {
+//        bool a = _db.User_IsExist("XP");
+//        bool b = _db.User_IsExist("XP1");
+//        bool c = _db.User_IsExist("XP2");
+//        bool d = _db.User_IsExist("XP3");
+//        bool e = _db.User_Insert("XP11", "1", "1", "1");
+//        bool g = _db.User_ModifyPassword("XP11", "2");
+//        bool f = _db.User_DeleteByName("XP11");
+//        printf("%d %d %d %d %d %d\n", a, b, c, d, e, g);
         server_.start();
     }
 private:
@@ -66,6 +74,7 @@ private:
             if (_db.DeviceLogin(message.loginInfo.name, message.loginInfo.password, deviceid))
             {
                 device_.InsertDevice(deviceid, conn);
+                conn->settype(SMART_DEVICE);
                 // answer client
                 int type = message.type;
                 char sztype[5] = {0};
@@ -80,7 +89,7 @@ private:
         else if (message.type == USERLOGIN)
         {
             int32_t userid = 0;
-            if (_db.UserLogin(message.loginInfo.name, message.loginInfo.password, userid))
+            if (_db.User_Login(message.loginInfo.name, message.loginInfo.password, userid))
             {
                 conn->setid(userid);
                 LOG_INFO << "user login pass!";

@@ -9,8 +9,13 @@ public:
     DBManager();
     ~DBManager();
 
+    bool User_IsExist(const char* username);
+    bool User_Insert(const char* username, const char* password, const char* email, const char* phone);
+    bool User_Login(const char* id, const char* password, int32_t& userid);
+    bool User_DeleteByName(const char* name);
+    bool User_ModifyPassword(const char* username, const char* password);
+
     bool DeviceLogin(const char* id, const char* password, int32_t& deviceid);
-    bool UserLogin(const char* id, const char* password, int32_t& userid);
     bool GetDeviceByUserID(int32_t userid, std::vector<int32_t>& devices); 
     bool Connect();
 private:

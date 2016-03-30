@@ -1,22 +1,22 @@
-#include "dbmanager.h"
+#include "dbaccess.h"
 #include <stdio.h>
 #include <muduo/base/Logging.h>
 
-DBManager::DBManager() : _conn(0),
-                         _res(0),
-                         _row(0),
-                         _bIsConnect(false)
+DBAccess::DBAccess() : _conn(0),
+                       _res(0),
+                       _row(0),
+                       _bIsConnect(false)
 {
     _conn = mysql_init(_conn);
 }
 
-DBManager::~DBManager()
+DBAccess::~DBAccess()
 {
     CleanResult();
     if (_bIsConnect) Close();
 }
 
-bool DBManager::Connect(char* server, char* user, char* password, char* database)
+bool DBAccess::Connect(const char* server, const char* user, const char* password, const char* database)
 {
     if (_bIsConnect) return true;
 	
@@ -29,14 +29,14 @@ bool DBManager::Connect(char* server, char* user, char* password, char* database
     return true;
 }
 
-void DBManager::Close()
+void DBAccess::Close()
 {
     mysql_close(_conn);
     _conn = 0;
     _bIsConnect = false;
 }
 
-int DBManager::Query(const char* szSQL)
+int DBAccess::Query(const char* szSQL)
 {
     if (szSQL == 0 || strlen(szSQL) == 0) return false;
     if (!_bIsConnect) return false;
@@ -57,7 +57,7 @@ int DBManager::Query(const char* szSQL)
     return true;
 }
 
-void DBManager::CleanResult()
+void DBAccess::CleanResult()
 {
     if (_res != 0)
     {
@@ -66,7 +66,7 @@ void DBManager::CleanResult()
     }
 }
 
-bool DBManager::GetResult()
+bool DBAccess::GetResult()
 {
     CleanResult();
     printf("Query exception");
@@ -75,7 +75,7 @@ bool DBManager::GetResult()
     return true;
 }
 
-char** DBManager::FetchRow()
+char** DBAccess::FetchRow()
 {
     if (_res == NULL) return NULL;
     _row = mysql_fetch_row(_res);

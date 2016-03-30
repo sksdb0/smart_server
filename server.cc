@@ -9,7 +9,8 @@
 #include <stdio.h>
 
 #include "codec.h"
-#include "dbmanager.h"
+#include "db/dbaccess.h"
+#include "db/dbmanager.h"
 #include "device_manager.h"
 
 using namespace muduo;
@@ -25,7 +26,7 @@ public:
         server_.setConnectionCallback(boost::bind(&ChatServer::onConnection, this, _1));
         server_.setMessageCallback(boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
         loop->runEvery(3.0, boost::bind(&DeviceManager::onHeartBeat, &device_));
-        InitDB(); 
+        _db.Connect();
     }
   
     void start()
@@ -62,7 +63,7 @@ private:
         else if (message.type == DEVICELOGIN)
         {
             int32_t deviceid = 0;
-            if (DeviceLogin(message, deviceid))
+            if (_db.DeviceLogin(message.loginInfo.name, message.loginInfo.password, deviceid))
             {
                 device_.InsertDevice(deviceid, conn);
                 // answer client
@@ -79,7 +80,7 @@ private:
         else if (message.type == USERLOGIN)
         {
             int32_t userid = 0;
-            if (UserLogin(message, userid))
+            if (_db.UserLogin(message.loginInfo.name, message.loginInfo.password, userid))
             {
                 conn->setid(userid);
                 LOG_INFO << "user login pass!";
@@ -92,7 +93,7 @@ private:
         else if (message.type == CONTROL)
         {
             std::vector<int32_t> devices;
-            if (GetDeviceByUserID(conn->getid(), devices))
+            if (_db.GetDeviceByUserID(conn->getid(), devices))
             {
                 for (std::vector<int32_t>::iterator it = devices.begin(); it != devices.end(); it++)
                 {
@@ -117,80 +118,11 @@ private:
         }
     }
 
-    int32_t DeviceLogin(const messageNode& message, int32_t& deviceid)
-    {
-        char sql[256] = {0};
-        sprintf(sql, "select dev_id, dev_password from smart_device where dev_sn = '%s'", message.loginInfo.name);
-        if (db_.Query(sql))
-        {
-            char** row = db_.FetchRow();
-            if (row == NULL) return false;
-            printf("id : %d password :%s\n", atoi(row[0]), row[1]);
-            if (strcmp(row[1], message.loginInfo.password) == 0)
-            {
-                deviceid = atoi(row[0]);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool UserLogin(const messageNode& message, int32_t& userid)
-    {
-        char sql[256] = {0};
-        sprintf(sql, "select id, password from smart_user where username = '%s'", message.loginInfo.name);
-        if (db_.Query(sql))
-        {
-            char** row = db_.FetchRow();
-            printf("id : %d password :%s\n", atoi(row[0]), row[1]);
-            if (strcmp(row[1], message.loginInfo.password) == 0)
-            {
-                userid = atoi(row[0]);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool GetDeviceByUserID(int32_t userid, std::vector<int32_t>& devices)
-    {
-        char sql[256] = {0};
-        sprintf(sql, "SELECT dev_id FROM smart_user_dev_r WHERE user_id = %d", userid);
-        if (db_.Query(sql))
-        {
-            char** row = NULL;
-            do
-            {
-                row = db_.FetchRow();
-                if (!row) break;
-                printf("devid %s", row[0]);
-                devices.push_back(atoi(row[0]));
-            }while(row);
-            return true;
-        }
-        return false;    
-    }
-
-    bool InitDB()
-    {
-        char host[20] = "127.0.0.1";
-        char user[20] = "root";
-        char password[20] = "rockrobo";
-        char database[20] = "smart";
-        if (!db_.Connect(host, user, password, database))
-        {
-            LOG_INFO << "Init DB failed!"; 
-            return false;
-        }
-        return true;
-    }
-  
     typedef std::set<TcpConnectionPtr> ConnectionList;
-
     TcpServer server_;
     LengthHeaderCodec codec_;
     ConnectionList connections_;
-    DBManager db_;
+    DBManager _db;
     DeviceManager device_;
 };
 

@@ -1,3 +1,5 @@
+add_subdirectory(db)
+
 add_executable(asio_chat_client client.cc)
 target_link_libraries(asio_chat_client muduo_net)
 
@@ -6,19 +8,6 @@ target_link_libraries(asio_chat_client1 muduo_net)
 
 add_executable(asio_chat_appclient appclient.cc)
 target_link_libraries(asio_chat_appclient muduo_net)
-#add_executable(asio_chat_loadtest loadtest.cc)
-#target_link_libraries(asio_chat_loadtest muduo_net)
 
-add_executable(asio_chat_server server.cc dbmanager.cc device_manager.cc)
-set(CMAKE_LIBRARY_PATH /usr/local/lib)
-target_link_libraries(asio_chat_server muduo_net mysqlclient)
-
-#add_executable(asio_chat_server_threaded server_threaded.cc)
-#target_link_libraries(asio_chat_server_threaded muduo_net)
-#
-#add_executable(asio_chat_server_threaded_efficient server_threaded_efficient.cc)
-#target_link_libraries(asio_chat_server_threaded_efficient muduo_net)
-#
-#add_executable(asio_chat_server_threaded_highperformance server_threaded_highperformance.cc)
-#target_link_libraries(asio_chat_server_threaded_highperformance muduo_net)
-
+add_executable(asio_chat_server server.cc device_manager.cc)
+target_link_libraries(asio_chat_server muduo_net dbaccess)

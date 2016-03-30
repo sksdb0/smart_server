@@ -1,15 +1,15 @@
-#ifndef _DB_MANAGER_H_
-#define _DB_MANAGER_H_
+#ifndef _DB_ACCESS_H_
+#define _DB_ACCESS_H_
 
 #include <mysql/mysql.h>
 
-class DBManager
+class DBAccess
 {
 public:
-    DBManager();
-    ~DBManager();
+    DBAccess();
+    ~DBAccess();
 
-    bool Connect(char* server, char* user, char* password, char* database);
+    bool Connect(const char* server, const char* user, const char* password, const char* database);
     void Close();	
     
     int Query(const char* szSQL);    

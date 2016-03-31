@@ -9,5 +9,5 @@ target_link_libraries(asio_chat_client1 muduo_net)
 add_executable(asio_chat_appclient appclient.cc)
 target_link_libraries(asio_chat_appclient muduo_net)
 
-add_executable(asio_chat_server server.cc device_manager.cc)
+add_executable(asio_chat_server server.cc homecenter_manager.cc)
 target_link_libraries(asio_chat_server muduo_net dbaccess)

@@ -9,9 +9,8 @@
 #include <stdio.h>
 
 #include "codec.h"
-#include "db/dbaccess.h"
 #include "db/dbmanager.h"
-#include "device_manager.h"
+#include "homecenter_manager.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -25,7 +24,7 @@ public:
     {
         server_.setConnectionCallback(boost::bind(&ChatServer::onConnection, this, _1));
         server_.setMessageCallback(boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
-        loop->runEvery(3.0, boost::bind(&DeviceManager::onHeartBeat, &device_));
+        loop->runEvery(3.0, boost::bind(&HomeCenterManager::onHeartBeat, &homecentermanager_));
         _db.Connect();
     }
   
@@ -55,7 +54,7 @@ private:
         }
         else 
         {
-            if (conn->gettype() == SMART_DEVICE) device_.DeleteDevice(conn);
+            if (conn->gettype() == SMART_DEVICE) homecentermanager_.DeleteHomeCenter(conn);
             connections_.erase(conn);
         }
     }
@@ -68,12 +67,12 @@ private:
         {
 
         }
-        else if (message.type == DEVICELOGIN)
+        else if (message.type == HOMECENTERLOGIN)
         {
-            int32_t deviceid = 0;
-            if (_db.DeviceLogin(message.loginInfo.name, message.loginInfo.password, deviceid))
+            int32_t homecenterid = 0;
+            if (_db.HomeCenterLogin(message.loginInfo.name, message.loginInfo.password, homecenterid))
             {
-                device_.InsertDevice(deviceid, conn);
+                homecentermanager_.InsertHomeCenter(homecenterid, conn);
                 conn->settype(SMART_DEVICE);
                 // answer client
                 int type = message.type;
@@ -83,7 +82,7 @@ private:
             }
             else
             {
-                LOG_INFO << "device password incorrect!";
+                LOG_INFO << "homecenter password incorrect!";
             }
         }
         else if (message.type == USERLOGIN)
@@ -101,21 +100,25 @@ private:
         }
         else if (message.type == CONTROL)
         {
-            std::vector<int32_t> devices;
-            if (_db.GetDeviceByUserID(conn->getid(), devices))
+            std::vector<int32_t> homecenters;
+            if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
             {
-                for (std::vector<int32_t>::iterator it = devices.begin(); it != devices.end(); it++)
+                for (std::vector<int32_t>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
                 {
                     LOG_INFO << *it;
-                    TcpConnectionPtr device;
-                    if (device_.FindDevice(*it, device))
+                    TcpConnectionPtr homecenter;
+                    if (homecentermanager_.FindHomeCenter(*it, homecenter))
                     {
                         char buf[128] = {0};
                         sendpack(buf, CONTROL, "222", "111");
-                        codec_.send(get_pointer(device), StringPiece(buf, sizeof(messageNode)));
+                        codec_.send(get_pointer(homecenter), StringPiece(buf, sizeof(messageNode)));
                     }
                 }
             }
+        }
+        else if (message.type == )
+        {
+
         }
         else if (message.type == HEARTBEAT)
         {
@@ -132,7 +135,7 @@ private:
     LengthHeaderCodec codec_;
     ConnectionList connections_;
     DBManager _db;
-    DeviceManager device_;
+    HomeCenterManager homecentermanager_;
 };
 
 int main(int argc, char* argv[])

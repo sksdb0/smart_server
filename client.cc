@@ -50,7 +50,7 @@ public:
     void login()
     {
         char buf[256];
-        sendpack(buf, DEVICELOGIN, "sn00001", "123456");
+        sendpack(buf, HOMECENTERLOGIN, "sn00001", "123456");
         write(StringPiece(buf, sizeof(messageNode)));
     }
   
@@ -84,7 +84,7 @@ private:
                const messageNode& node,
                Timestamp)
     {
-        if (node.type == DEVICELOGIN)
+        if (node.type == HOMECENTERLOGIN)
             conn->getLoop()->runEvery(3.0, boost::bind(&ChatClient::onTimer, this));
         else if (node.type == CONTROL)
         {

@@ -4,9 +4,10 @@
 enum messageType
 {   
     SIGNUP = 0,
-    DEVICELOGIN,
+    HOMECENTERLOGIN,
     USERLOGIN,
     CONTROL,
+    GETCENTERINFO,
     HEARTBEAT
 };
 

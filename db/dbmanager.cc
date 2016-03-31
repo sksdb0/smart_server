@@ -70,7 +70,7 @@ bool DBManager::User_ModifyPassword(const char* username, const char* password)
     return _dbaccess.Query(sql);
 }
 
-bool DBManager::DeviceLogin(const char* id, const char* password, int32_t& deviceid)
+bool DBManager::HomeCenterLogin(const char* id, const char* password, int32_t& homecenterid)
 {
     char sql[256] = {0};
     sprintf(sql, "SELECT dev_id, dev_password FROM smart_device WHERE dev_sn = '%s'", id);
@@ -80,14 +80,14 @@ bool DBManager::DeviceLogin(const char* id, const char* password, int32_t& devic
         if (row == NULL) return false;
         if (strcmp(row[1], password) == 0)
         {
-            deviceid = atoi(row[0]);
+            homecenterid = atoi(row[0]);
             return true;
         }
     }
     return false;
 }
 
-bool DBManager::GetDeviceByUserID(int32_t userid, std::vector<int32_t>& devices)
+bool DBManager::GetHomeCenterByUserID(int32_t userid, std::vector<int32_t>& homecenters)
 {
     char sql[256] = {0};
     sprintf(sql, "SELECT dev_id FROM smart_user_dev_r WHERE user_id = %d", userid);
@@ -98,7 +98,7 @@ bool DBManager::GetDeviceByUserID(int32_t userid, std::vector<int32_t>& devices)
         {
             row = _dbaccess.FetchRow();
             if (!row) break;
-            devices.push_back(atoi(row[0]));
+            homecenters.push_back(atoi(row[0]));
         }while(row);
         return true;
     }

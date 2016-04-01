@@ -64,23 +64,17 @@ private:
                   const signupNode& signup,
                    Timestamp)
     {
-        LOG_INFO << "1111111111111111111111111111";
-        LOG_INFO << signup.name;
-        LOG_INFO << signup.password;
-        LOG_INFO << signup.phone;
-        LOG_INFO << signup.email;
-        _db.User_Insert(signup.name, signup.password, signup.phone, signup.email);
+        if (_db.User_Insert(signup.name, signup.password, signup.phone, signup.email))
+        {
+            // signup success
+        }
     }
 
     void onMessage(const TcpConnectionPtr& conn,
                    const messageNode& message,
                    Timestamp)
     {
-        if (message.type == SIGNUP)
-        {
-
-        }
-        else if (message.type == HOMECENTERLOGIN)
+        if (message.type == HOMECENTERLOGIN)
         {
             int32_t homecenterid = 0;
             if (_db.HomeCenterLogin(message.loginInfo.name, message.loginInfo.password, homecenterid))

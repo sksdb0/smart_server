@@ -68,7 +68,6 @@ public:
                     {
                         case SIGNUP:
                         {
-                            LOG_INFO << len;
                             signupNode n;
                             memcpy(&n, buf->peek(), sizeof(signupNode));
                             signup_(conn, n, receiveTime);

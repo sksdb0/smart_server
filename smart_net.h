@@ -1,15 +1,24 @@
 #ifndef _SMART_NET_H_
 #define _SMART_NET_H_
 
+
+
 enum messageType
 {   
-    SIGNUP = 1,
-    HOMECENTERLOGIN,
-    USERLOGIN,
-    CONTROL,
-    GETCENTERID,
-    GETCENTERINFO,
-    HEARTBEAT
+    // app <--> homecenter
+    Search_Homecenter = 0x10,
+    Get_Nearby_Wifi,
+    Link_Specified_Wifi,
+    // server <--> homecenter
+    Homecenter_Login,
+    Heartbeat,
+    // app <--> server
+    Signup = 1,
+    User_Login,
+    Bind_User = 0x30,
+    Control,
+    Get_Homecenter_id,
+    Get_Homecenter_Info
 };
 
 enum deviceType

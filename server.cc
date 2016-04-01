@@ -74,7 +74,7 @@ private:
                    const messageNode& message,
                    Timestamp)
     {
-        if (message.type == HOMECENTERLOGIN)
+        if (message.type == Homecenter_Login)
         {
             int32_t homecenterid = 0;
             if (_db.HomeCenterLogin(message.loginInfo.name, message.loginInfo.password, homecenterid))
@@ -92,7 +92,7 @@ private:
                 LOG_INFO << "homecenter password incorrect!";
             }
         }
-        else if (message.type == USERLOGIN)
+        else if (message.type == User_Login)
         {
             int32_t userid = 0;
             if (_db.User_Login(message.loginInfo.name, message.loginInfo.password, userid))
@@ -105,7 +105,7 @@ private:
                 LOG_INFO << "user password incorrect!";
             }
         }
-        else if (message.type == CONTROL)
+        else if (message.type == Control)
         {
             std::vector<int32_t> homecenters;
             if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
@@ -117,17 +117,17 @@ private:
                     if (homecentermanager_.FindHomeCenter(*it, homecenter))
                     {
                         char buf[128] = {0};
-                        sendpack(buf, CONTROL, "control", "111");
+                        sendpack(buf, Control, "control", "111");
                         codec_.send(get_pointer(homecenter), StringPiece(buf, sizeof(messageNode)));
                     }
                 }
             }
         }
-        else if (message.type == GETCENTERINFO)
+        else if (message.type == Get_Homecenter_Info)
         {
             
         }
-        else if (message.type == GETCENTERID)
+        else if (message.type == Get_Homecenter_id)
         {
             std::vector<int32_t> homecenters;
             if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
@@ -144,7 +144,7 @@ private:
                 codec_.send(get_pointer(conn), StringPiece(buf, sizeof(messageNode)));
             }
         }
-        else if (message.type == HEARTBEAT)
+        else if (message.type == Heartbeat)
         {
             *boost::any_cast<muduo::Timestamp>(conn->getMutableContext()) = Timestamp::now(); 
         }

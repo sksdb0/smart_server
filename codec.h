@@ -66,7 +66,7 @@ public:
                 {
                     switch (GetType(buf))
                     {
-                        case SIGNUP:
+                        case Signup:
                         {
                             signupNode n;
                             memcpy(&n, buf->peek(), sizeof(signupNode));

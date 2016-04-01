@@ -49,7 +49,7 @@ public:
     void login()
     {
         char buf[256];
-        sendpack(buf, USERLOGIN, "xp", "7731939xp");
+        sendpack(buf, User_Login, "xp", "7731939xp");
         write(StringPiece(buf, sizeof(messageNode)));
     }
   
@@ -81,7 +81,7 @@ private:
                    const messageNode& message,
                    Timestamp)
     {
-        if (message.type == GETCENTERID)
+        if (message.type == Get_Homecenter_id)
         {
             for (int i = 0; i < 10; i++)
             {
@@ -114,13 +114,13 @@ int main(int argc, char* argv[])
         while (std::getline(std::cin, line))
         {
   //          char buf[256];
-  //          sendpack(buf, CONTROL, "appclient", line.c_str());
+  //          sendpack(buf, Control, "appclient", line.c_str());
   //          client.write(StringPiece(buf, sizeof(messageNode)));
   //          char buf[256];
-  //          sendpack(buf, GETCENTERID, "appclient", line.c_str());
+  //          sendpack(buf, Get_Homecenter_id, "appclient", line.c_str());
   //          client.write(StringPiece(buf, sizeof(messageNode)));
             char buf[256];
-            sendpack(&buf, SIGNUP, "XPXP", "11", "22", "33");
+            sendpack(&buf, Signup, "XPXP", "11", "22", "33");
             client.write(StringPiece(buf, sizeof(signupNode)));
         }
         client.disconnect();

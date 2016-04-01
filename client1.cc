@@ -51,14 +51,14 @@ public:
     void login()
     {
         char buf[256];
-        sendpack(buf, HOMECENTERLOGIN, "sn00005", "123456");
+        sendpack(buf, Homecenter_Login, "sn00005", "123456");
         write(StringPiece(buf, sizeof(messageNode)));
     }
   
 private:
     void onTimer()
     {
-        int type = HEARTBEAT;
+        int type = Heartbeat;
         char sztype[5] = {0};
         memcpy(sztype, &type, sizeof(type));
         codec_.send(get_pointer(connection_), sztype);
@@ -91,9 +91,9 @@ private:
                const messageNode& node,
                Timestamp)
     {
-        if (node.type == HOMECENTERLOGIN)
+        if (node.type == Homecenter_Login)
             conn->getLoop()->runEvery(3.0, boost::bind(&ChatClient::onTimer, this));
-        else if (node.type == CONTROL)
+        else if (node.type == Control)
         {
             printf("control %s %s\n", node.loginInfo.name, node.loginInfo.password);
         }

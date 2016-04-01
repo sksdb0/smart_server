@@ -10,12 +10,12 @@ enum messageType
     Get_Nearby_Wifi,
     Link_Specified_Wifi,
     // server <--> homecenter
-    Homecenter_Login,
+    Homecenter_Login = 0x30,
     Heartbeat,
     // app <--> server
-    Signup = 1,
+    Signup = 0x50,
     User_Login,
-    Bind_User = 0x30,
+    Bind_User,
     Control,
     Get_Homecenter_id,
     Get_Homecenter_Info
@@ -37,8 +37,7 @@ enum timerType
 {
 };
 
-// message SIGNUP
-// app to server
+// message Signup app to server
 struct signupNode
 {
     int32_t type;
@@ -48,14 +47,22 @@ struct signupNode
     char email[50];
 };
 
-// message GETCENTERINFO
-// server to app
+// message Get_Homecenter_Info server to app
 struct deviceNode
 {
     int32_t centerid;
     int32_t type;
     int32_t id;
     char name[3][20];
+};
+
+// message Lint_Speceified_Wifi app to homecenter
+struct link_specified_wifi_Node
+{
+    char wifiname[32];
+    char wifipassword[32];
+    char serverip[20];
+    int32_t port;
 };
  
 struct messageNode

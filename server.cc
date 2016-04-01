@@ -20,7 +20,8 @@ class ChatServer : boost::noncopyable
 public:
     ChatServer(EventLoop* loop, const InetAddress& listenAddr)
           : server_(loop, listenAddr, "ChatServer"),
-      codec_(boost::bind(&ChatServer::onMessage, this, _1, _2, _3))
+      codec_(boost::bind(&ChatServer::onMessage, this, _1, _2, _3),
+             boost::bind(&ChatServer::onSignUp, this, _1, _2, _3))
     {
         server_.setConnectionCallback(boost::bind(&ChatServer::onConnection, this, _1));
         server_.setMessageCallback(boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
@@ -59,6 +60,18 @@ private:
         }
     }
   
+    void onSignUp(const TcpConnectionPtr& conn,
+                  const signupNode& signup,
+                   Timestamp)
+    {
+        LOG_INFO << "1111111111111111111111111111";
+        LOG_INFO << signup.name;
+        LOG_INFO << signup.password;
+        LOG_INFO << signup.phone;
+        LOG_INFO << signup.email;
+        _db.User_Insert(signup.name, signup.password, signup.phone, signup.email);
+    }
+
     void onMessage(const TcpConnectionPtr& conn,
                    const messageNode& message,
                    Timestamp)
@@ -110,15 +123,32 @@ private:
                     if (homecentermanager_.FindHomeCenter(*it, homecenter))
                     {
                         char buf[128] = {0};
-                        sendpack(buf, CONTROL, "222", "111");
+                        sendpack(buf, CONTROL, "control", "111");
                         codec_.send(get_pointer(homecenter), StringPiece(buf, sizeof(messageNode)));
                     }
                 }
             }
         }
-        else if (message.type == )
+        else if (message.type == GETCENTERINFO)
         {
-
+            
+        }
+        else if (message.type == GETCENTERID)
+        {
+            std::vector<int32_t> homecenters;
+            if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
+            {
+                messageNode node;
+                node.type = message.type;
+                int32_t index = 0;
+                for (std::vector<int32_t>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
+                {
+                    node.int32_tbuf[index++] = *it;
+                }
+                char buf[128] = {0};
+                sendpack(buf, node);
+                codec_.send(get_pointer(conn), StringPiece(buf, sizeof(messageNode)));
+            }
         }
         else if (message.type == HEARTBEAT)
         {

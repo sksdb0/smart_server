@@ -21,7 +21,8 @@ class ChatClient : boost::noncopyable
 public:
     ChatClient(EventLoop* loop, const InetAddress& serverAddr)
       : client_(loop, serverAddr, "ChatClient1"),
-        codec_(boost::bind(&ChatClient::onMessage, this, _1, _2, _3))
+        codec_(boost::bind(&ChatClient::onMessage, this, _1, _2, _3),
+        boost::bind(&ChatClient::onSignUp, this, _1, _2, _3))
     {
         client_.setConnectionCallback(boost::bind(&ChatClient::onConnection, this, _1));
         client_.setMessageCallback(boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
@@ -78,6 +79,12 @@ private:
         {
             connection_.reset();
         }
+    }
+
+    void onSignUp(const TcpConnectionPtr& conn,
+               const signupNode& node,
+               Timestamp)
+    {
     }
 
     void onMessage(const TcpConnectionPtr& conn,

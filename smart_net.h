@@ -3,15 +3,16 @@
 
 enum messageType
 {   
-    SIGNUP = 0,
+    SIGNUP = 1,
     HOMECENTERLOGIN,
     USERLOGIN,
     CONTROL,
+    GETCENTERID,
     GETCENTERINFO,
     HEARTBEAT
 };
 
-enum terminalType
+enum deviceType
 {
     WALLSWITCH = 0,
 };
@@ -26,6 +27,27 @@ enum controlType
 enum timerType
 {
 };
+
+// message SIGNUP
+// app to server
+struct signupNode
+{
+    int32_t type;
+    char name[20];
+    char password[32];
+    char phone[13];
+    char email[50];
+};
+
+// message GETCENTERINFO
+// server to app
+struct deviceNode
+{
+    int32_t centerid;
+    int32_t type;
+    int32_t id;
+    char name[3][20];
+};
  
 struct messageNode
 {   
@@ -37,12 +59,13 @@ struct messageNode
             char name[20];
             char password[32];
         }loginInfo;
-        struct
-        {
-            int32_t terminalid;
-            int32_t terminaltype;
-            int32_t controltype;
-        }terminalControl;
+        int32_t int32_tbuf[13];
+        unsigned char ucharbuf[52];
+    };
+    messageNode()
+    {
+        type = 0;
+        memset(int32_tbuf, 0, sizeof(int32_tbuf));
     };
 };
 
@@ -58,5 +81,16 @@ static inline int32_t sendpack(void* buf, const int32_t type, const char* name, 
     memcpy((static_cast<char*>(buf) + 4), name, 20);
     memcpy((static_cast<char*>(buf) + 24), password, 32);
     return sizeof(messageNode);
+}
+
+static inline int32_t sendpack(void* buf, const int32_t type, const char* name,\
+        const char* password, const char* phone, const char* email)
+{
+    memcpy(buf, &type, 4);
+    memcpy((static_cast<char*>(buf) + 4),  name, 20);
+    memcpy((static_cast<char*>(buf) + 24), password, 32);
+    memcpy((static_cast<char*>(buf) + 56), phone, 13);
+    memcpy((static_cast<char*>(buf) + 69), email, 50);
+    return sizeof(signupNode);
 }
 #endif

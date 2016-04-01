@@ -19,8 +19,13 @@ public:
                                   const messageNode& message,
                                   muduo::Timestamp)> MessageCallback;
 
-    explicit LengthHeaderCodec(const MessageCallback& messagecb)
-      : message_(messagecb)
+    typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+                                  const signupNode& signup,
+                                  muduo::Timestamp)> SignUpCallback;
+
+    explicit LengthHeaderCodec(const MessageCallback& messagecb,
+                               const SignUpCallback& signupcb)
+      : message_(messagecb), signup_(signupcb)
     {
     }
  
@@ -28,6 +33,13 @@ public:
     {
         if (memcmp(header, ptr, sizeof(header)) == 0) return true;
         return false;
+    }
+
+    int32_t GetType(muduo::net::Buffer* buf)
+    {
+        int32_t type = 0;
+        memcpy(&type, buf->peek(), sizeof(int32_t));
+        return type;
     }
   
     void onMessage(const muduo::net::TcpConnectionPtr& conn,
@@ -52,10 +64,23 @@ public:
                 buf->retrieve(kHeaderLen + sizeof(header));
                 if (IsHeader(data))
                 {
-                    messageNode n;
-                    memcpy(&n, buf->peek(), sizeof(messageNode));
-        //            printf("%d %s %s\n", n.type, n.loginInfo.name, n.loginInfo.password);
-                    message_(conn, n, receiveTime);
+                    switch (GetType(buf))
+                    {
+                        case SIGNUP:
+                        {
+                            LOG_INFO << len;
+                            signupNode n;
+                            memcpy(&n, buf->peek(), sizeof(signupNode));
+                            signup_(conn, n, receiveTime);
+                            break;
+                        }
+                        default:
+                        {
+                            messageNode n;
+                            memcpy(&n, buf->peek(), sizeof(messageNode));
+                            message_(conn, n, receiveTime);
+                        }
+                    }
                 }
                 buf->retrieve(len);
             }
@@ -82,6 +107,7 @@ public:
 private:
     const static unsigned char header[4];
     MessageCallback message_;
+    SignUpCallback signup_;
     const static size_t kHeaderLen = sizeof(int32_t);
 };
 

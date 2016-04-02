@@ -21,7 +21,7 @@ class ChatClient : boost::noncopyable
 public:
     ChatClient(EventLoop* loop, const InetAddress& serverAddr)
       : client_(loop, serverAddr, "ChatClient1"),
-        codec_(boost::bind(&ChatClient::onMessage, this, _1, _2, _3),
+        codec_(boost::bind(&ChatClient::onMessage, this, _1, _2, _3, _4),
         boost::bind(&ChatClient::onSignUp, this, _1, _2, _3))
     {
         client_.setConnectionCallback(boost::bind(&ChatClient::onConnection, this, _1));
@@ -39,20 +39,20 @@ public:
         client_.disconnect();
     }
   
-    void write(const StringPiece& message)
+    void write(uint8_t type, const StringPiece& message)
     {
         MutexLockGuard lock(mutex_);
         if (connection_)
         {
-            codec_.send(get_pointer(connection_), message);
+            codec_.send(get_pointer(connection_), type, message);
         }
     }
     
     void login()
     {
         char buf[256];
-        sendpack(buf, Homecenter_Login, "sn00005", "123456");
-        write(StringPiece(buf, sizeof(messageNode)));
+        sendpack(buf, "sn00005", "123456");
+        write(Homecenter_Login, StringPiece(buf, sizeof(messageNode)));
     }
   
 private:
@@ -61,7 +61,7 @@ private:
         int type = Heartbeat;
         char sztype[5] = {0};
         memcpy(sztype, &type, sizeof(type));
-        codec_.send(get_pointer(connection_), sztype);
+        codec_.send(get_pointer(connection_), Heartbeat, sztype);
     }
 
     void onConnection(const TcpConnectionPtr& conn)
@@ -88,12 +88,13 @@ private:
     }
 
     void onMessage(const TcpConnectionPtr& conn,
-               const messageNode& node,
-               Timestamp)
+                   const uint8_t type,
+                   const messageNode& node,
+                   Timestamp)
     {
-        if (node.type == Homecenter_Login)
+        if (type == Homecenter_Login)
             conn->getLoop()->runEvery(3.0, boost::bind(&ChatClient::onTimer, this));
-        else if (node.type == Control)
+        else if (type == Control)
         {
             printf("control %s %s\n", node.loginInfo.name, node.loginInfo.password);
         }

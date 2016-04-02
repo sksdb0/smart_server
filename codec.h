@@ -16,6 +16,7 @@ class LengthHeaderCodec : boost::noncopyable
 {
 public:
     typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+                                  const int32_t type,
                                   const messageNode& message,
                                   muduo::Timestamp)> MessageCallback;
 
@@ -50,10 +51,10 @@ public:
         {
             // FIXME: use Buffer::peekInt32()
             const void* data = buf->peek();
-            int32_t be32 = *(static_cast<const int32_t*>(data) + 1); // SIGBUS
-            const int32_t len = muduo::net::sockets::networkToHost32(be32);
-//            printf("%d\n", len);
-            if (len > 65536 || len < 0)
+            const void* temp = static_cast<const char*>(data) + 3;
+            const int16_t len = *static_cast<const int16_t*>(temp);
+         //   printf("%d\n", len);
+            if (len > 16384 || len < 0)
             {
                 LOG_ERROR << "Invalid length " << len;
                 conn->shutdown();  // FIXME: disable reading
@@ -61,10 +62,12 @@ public:
             }
             else if (buf->readableBytes() >= len + kHeaderLen)
             {
-                buf->retrieve(kHeaderLen + sizeof(header));
+                buf->retrieve(kHeaderLen + sizeof header + sizeof ender + 1);
                 if (IsHeader(data))
                 {
-                    switch (GetType(buf))
+                    temp = static_cast<const char*>(data) + 2;
+                    uint8_t type = *static_cast<const uint8_t*>(temp);
+                    switch (type)
                     {
                         case Signup:
                         {
@@ -77,7 +80,7 @@ public:
                         {
                             messageNode n;
                             memcpy(&n, buf->peek(), sizeof(messageNode));
-                            message_(conn, n, receiveTime);
+                            message_(conn, type, n, receiveTime);
                         }
                     }
                 }
@@ -92,23 +95,44 @@ public:
   
     // FIXME: TcpConnectionPtr
     void send(muduo::net::TcpConnection* conn,
+              const uint8_t type,
               const muduo::StringPiece& message)
     {
         muduo::net::Buffer buf;
         buf.append(message.data(), message.size());
-        int32_t len = static_cast<int32_t>(message.size());
-        int32_t be32 = muduo::net::sockets::hostToNetwork32(len);
-        buf.prepend(&be32, sizeof be32);
+        int16_t len = static_cast<int16_t>(message.size());
+    //    printf("%d\n", len);
+        buf.prepend(ender, sizeof ender);
+        buf.prepend(&len, sizeof len);
+        buf.prepend(&type, sizeof type);
         buf.prepend(header, sizeof header);
         conn->send(&buf);
     }
   
+    // FIXME: TcpConnectionPtr
+    void send1(muduo::net::TcpConnection* conn,
+              const uint8_t type,
+              const muduo::StringPiece& message)
+    {
+        muduo::net::Buffer buf;
+        buf.append("", 0);
+        int16_t len = static_cast<int16_t>(message.size());
+    //    printf("%d\n", len);
+        buf.prepend(ender, sizeof ender);
+        buf.prepend(&len, sizeof len);
+        buf.prepend(&type, sizeof type);
+        buf.prepend(header, sizeof header);
+        conn->send(&buf);
+    }
+   
 private:
-    const static unsigned char header[4];
+    const static unsigned char header[2];
+    const static unsigned char ender[1];
     MessageCallback message_;
     SignUpCallback signup_;
-    const static size_t kHeaderLen = sizeof(int32_t);
+    const static size_t kHeaderLen = sizeof(int16_t);
 };
 
-const unsigned char LengthHeaderCodec::header[4] = {0xAA, 0x55, 0, 0}; 
+const unsigned char LengthHeaderCodec::ender[1] = {0x0};
+const unsigned char LengthHeaderCodec::header[2] = {0xAA, 0x55}; 
 #endif  // MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H

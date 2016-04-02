@@ -20,7 +20,7 @@ class ChatServer : boost::noncopyable
 public:
     ChatServer(EventLoop* loop, const InetAddress& listenAddr)
           : server_(loop, listenAddr, "ChatServer"),
-      codec_(boost::bind(&ChatServer::onMessage, this, _1, _2, _3),
+      codec_(boost::bind(&ChatServer::onMessage, this, _1, _2, _3, _4),
              boost::bind(&ChatServer::onSignUp, this, _1, _2, _3))
     {
         server_.setConnectionCallback(boost::bind(&ChatServer::onConnection, this, _1));
@@ -71,10 +71,11 @@ private:
     }
 
     void onMessage(const TcpConnectionPtr& conn,
+                   const uint8_t type,
                    const messageNode& message,
                    Timestamp)
     {
-        if (message.type == Homecenter_Login)
+        if (type == Homecenter_Login)
         {
             int32_t homecenterid = 0;
             if (_db.HomeCenterLogin(message.loginInfo.name, message.loginInfo.password, homecenterid))
@@ -82,17 +83,16 @@ private:
                 homecentermanager_.InsertHomeCenter(homecenterid, conn);
                 conn->settype(SMART_DEVICE);
                 // answer client
-                int type = message.type;
                 char sztype[5] = {0};
                 memcpy(sztype, &type, sizeof(type));
-                codec_.send(get_pointer(conn), sztype);
+                codec_.send1(get_pointer(conn), type, sztype);
             }
             else
             {
                 LOG_INFO << "homecenter password incorrect!";
             }
         }
-        else if (message.type == User_Login)
+        else if (type == User_Login)
         {
             int32_t userid = 0;
             if (_db.User_Login(message.loginInfo.name, message.loginInfo.password, userid))
@@ -105,7 +105,7 @@ private:
                 LOG_INFO << "user password incorrect!";
             }
         }
-        else if (message.type == Control)
+        else if (type == Control)
         {
             std::vector<int32_t> homecenters;
             if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
@@ -117,23 +117,22 @@ private:
                     if (homecentermanager_.FindHomeCenter(*it, homecenter))
                     {
                         char buf[128] = {0};
-                        sendpack(buf, Control, "control", "111");
-                        codec_.send(get_pointer(homecenter), StringPiece(buf, sizeof(messageNode)));
+                        sendpack(buf, "control", "111");
+                        codec_.send(get_pointer(homecenter), type, StringPiece(buf, sizeof(messageNode)));
                     }
                 }
             }
         }
-        else if (message.type == Get_Homecenter_Info)
+        else if (type == Get_Homecenter_Info)
         {
             
         }
-        else if (message.type == Get_Homecenter_id)
+        else if (type == Get_Homecenter_id)
         {
             std::vector<int32_t> homecenters;
             if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
             {
                 messageNode node;
-                node.type = message.type;
                 int32_t index = 0;
                 for (std::vector<int32_t>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
                 {
@@ -141,10 +140,10 @@ private:
                 }
                 char buf[128] = {0};
                 sendpack(buf, node);
-                codec_.send(get_pointer(conn), StringPiece(buf, sizeof(messageNode)));
+                codec_.send(get_pointer(conn), type, StringPiece(buf, sizeof(messageNode)));
             }
         }
-        else if (message.type == Heartbeat)
+        else if (type == Heartbeat)
         {
             *boost::any_cast<muduo::Timestamp>(conn->getMutableContext()) = Timestamp::now(); 
         }

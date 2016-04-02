@@ -11,19 +11,21 @@ enum messageType
     Link_Specified_Wifi,
     // server <--> homecenter
     Homecenter_Login = 0x30,
+    Get_Homecenter_id,
+    Get_Homecenter_Info,
     Heartbeat,
     // app <--> server
     Signup = 0x50,
     User_Login,
     Bind_User,
     Control,
-    Get_Homecenter_id,
-    Get_Homecenter_Info
+    Get_Homecenter_id_App,
+    Get_Homecenter_Info_App
 };
 
 enum deviceType
 {
-    WALLSWITCH = 0,
+    WallSwitch_One_Channel = 0,
 };
 
 enum controlType
@@ -40,7 +42,6 @@ enum timerType
 // message Signup app to server
 struct signupNode
 {
-    int32_t type;
     char name[20];
     char password[32];
     char phone[13];
@@ -67,7 +68,6 @@ struct link_specified_wifi_Node
  
 struct messageNode
 {   
-    int32_t type;
     union
     {
         struct
@@ -80,7 +80,6 @@ struct messageNode
     };
     messageNode()
     {
-        type = 0;
         memset(int32_tbuf, 0, sizeof(int32_tbuf));
     };
 };
@@ -91,22 +90,20 @@ static inline int32_t sendpack(void* buf, const messageNode& node)
     return sizeof(messageNode);
 }
 
-static inline int32_t sendpack(void* buf, const int32_t type, const char* name, const char* password)
+static inline int32_t sendpack(void* buf, const char* name, const char* password)
 {
-    memcpy(buf, &type, 4);
-    memcpy((static_cast<char*>(buf) + 4), name, 20);
-    memcpy((static_cast<char*>(buf) + 24), password, 32);
+    memcpy((static_cast<char*>(buf)), name, 20);
+    memcpy((static_cast<char*>(buf) + 20), password, 32);
     return sizeof(messageNode);
 }
 
-static inline int32_t sendpack(void* buf, const int32_t type, const char* name,\
+static inline int32_t sendpack(void* buf, const char* name,\
         const char* password, const char* phone, const char* email)
 {
-    memcpy(buf, &type, 4);
-    memcpy((static_cast<char*>(buf) + 4),  name, 20);
-    memcpy((static_cast<char*>(buf) + 24), password, 32);
-    memcpy((static_cast<char*>(buf) + 56), phone, 13);
-    memcpy((static_cast<char*>(buf) + 69), email, 50);
+    memcpy((static_cast<char*>(buf)),  name, 20);
+    memcpy((static_cast<char*>(buf) + 20), password, 32);
+    memcpy((static_cast<char*>(buf) + 52), phone, 13);
+    memcpy((static_cast<char*>(buf) + 65), email, 50);
     return sizeof(signupNode);
 }
 #endif

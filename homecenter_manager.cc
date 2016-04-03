@@ -66,3 +66,10 @@ bool HomeCenterManager::FindHomeCenter(const int32_t id, TcpConnectionPtr& homec
 
     return bisfind;
 }
+
+bool HomeCenterManager::IsHomeCenterOnline(const int32_t id)
+{
+    if (homecenters_.find(id) != homecenters_.end())
+        return true;
+    return false;
+}

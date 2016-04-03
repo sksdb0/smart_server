@@ -18,6 +18,7 @@ public:
     void DeleteHomeCenter(const int32_t id);
     void DeleteHomeCenter(const TcpConnectionPtr& device);
     bool FindHomeCenter(const int32_t id, TcpConnectionPtr& homecenter);
+    bool IsHomeCenterOnline(const int32_t id);
 private:
     typedef std::map<int, WeakTcpConnectionPtr> HomeCenterList;
 

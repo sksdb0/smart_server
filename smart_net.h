@@ -57,6 +57,14 @@ struct deviceNode
     char name[3][20];
 };
 
+// message Get Homecenter
+struct homecenterNode
+{
+    char name[20];
+    int32_t device_count;
+    // deviceNode node[];
+};
+
 // message Lint_Speceified_Wifi app to homecenter
 struct link_specified_wifi_Node
 {

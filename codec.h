@@ -109,22 +109,6 @@ public:
         conn->send(&buf);
     }
   
-    // FIXME: TcpConnectionPtr
-    void send1(muduo::net::TcpConnection* conn,
-              const uint8_t type,
-              const muduo::StringPiece& message)
-    {
-        muduo::net::Buffer buf;
-        buf.append("", 0);
-        int16_t len = static_cast<int16_t>(message.size());
-    //    printf("%d\n", len);
-        buf.prepend(ender, sizeof ender);
-        buf.prepend(&len, sizeof len);
-        buf.prepend(&type, sizeof type);
-        buf.prepend(header, sizeof header);
-        conn->send(&buf);
-    }
-   
 private:
     const static unsigned char header[2];
     const static unsigned char ender[1];

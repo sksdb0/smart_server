@@ -85,7 +85,7 @@ private:
                 // answer client
                 char sztype[5] = {0};
                 memcpy(sztype, &type, sizeof(type));
-                codec_.send1(get_pointer(conn), type, sztype);
+                codec_.send(get_pointer(conn), type, sztype);
             }
             else
             {

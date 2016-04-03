@@ -58,9 +58,7 @@ public:
 private:
     void onTimer()
     {
-        int type = Heartbeat;
-        char sztype[5] = {0};
-        memcpy(sztype, &type, sizeof(type));
+        char sztype[1] = {0};
         codec_.send(get_pointer(connection_), Heartbeat, sztype);
     }
 

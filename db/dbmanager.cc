@@ -16,7 +16,7 @@ DBManager::~DBManager()
 bool DBManager::User_IsExist(const char* username)
 {
     char sql[256] = {0};
-    sprintf(sql, "SELECT * FROM smart_user WHERE username = '%s'", username);
+    sprintf(sql, "SELECT * FROM smart_user_t WHERE username = '%s'", username);
     if (_dbaccess.Query(sql))
     {
         char** row = _dbaccess.FetchRow();
@@ -33,16 +33,16 @@ bool DBManager::User_Insert(const char* username, const char* password, const ch
         strlen(email) == 0 || strlen(phone) == 0) return false;
 
     char sql[256] = {0};
-    sprintf(sql, "INSERT INTO smart_user (username, password, phone, email)\
+    sprintf(sql, "INSERT INTO smart_user_t (username, password, phone, email)\
                   VALUES ('%s', '%s', '%s', '%s')", \
                   username, password, phone, email);
     return _dbaccess.Query(sql);
 }
 
-bool DBManager::User_Login(const char* id, const char* password, int32_t& userid)
+bool DBManager::User_Login(const char* name, const char* password, int32_t& userid)
 {
     char sql[256] = {0};
-    sprintf(sql, "SELECT id, password FROM smart_user WHERE username = '%s'", id);
+    sprintf(sql, "SELECT id, password FROM smart_user_t WHERE username = '%s'", name);
     if (_dbaccess.Query(sql))
     {
         char** row = _dbaccess.FetchRow();
@@ -59,21 +59,21 @@ bool DBManager::User_Login(const char* id, const char* password, int32_t& userid
 bool DBManager::User_DeleteByName(const char* name)
 {
     char sql[256] = {0};
-    sprintf(sql, "DELETE FROM smart_user WHERE username = '%s'", name);
+    sprintf(sql, "DELETE FROM smart_user_t WHERE username = '%s'", name);
     return _dbaccess.Query(sql);
 }
 
 bool DBManager::User_ModifyPassword(const char* username, const char* password)
 {
     char sql[256] = {0};
-    sprintf(sql, "UPDATE smart_user SET password = '%s' WHERE username = '%s'", password, username);
+    sprintf(sql, "UPDATE smart_user_t SET password = '%s' WHERE username = '%s'", password, username);
     return _dbaccess.Query(sql);
 }
 
-bool DBManager::HomeCenterLogin(const char* id, const char* password, int32_t& homecenterid)
+bool DBManager::HomeCenter_Login(const char* name, const char* password, int32_t& homecenterid)
 {
     char sql[256] = {0};
-    sprintf(sql, "SELECT dev_id, dev_password FROM smart_device WHERE dev_sn = '%s'", id);
+    sprintf(sql, "SELECT center_id, center_password FROM smart_center_t WHERE center_sn = '%s'", name);
     if (_dbaccess.Query(sql))
     {
         char** row = _dbaccess.FetchRow();
@@ -90,7 +90,7 @@ bool DBManager::HomeCenterLogin(const char* id, const char* password, int32_t& h
 bool DBManager::GetHomeCenterByUserID(int32_t userid, std::vector<int32_t>& homecenters)
 {
     char sql[256] = {0};
-    sprintf(sql, "SELECT dev_id FROM smart_user_dev_r WHERE user_id = %d", userid);
+    sprintf(sql, "SELECT center_id FROM smart_user_center_r WHERE user_id = %d", userid);
     if (_dbaccess.Query(sql))
     {
         char** row = NULL;

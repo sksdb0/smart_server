@@ -15,7 +15,8 @@ public:
     bool User_DeleteByName(const char* name);
     bool User_ModifyPassword(const char* username, const char* password);
 
-    bool HomeCenterLogin(const char* id, const char* password, int32_t& homecenterid);
+    bool HomeCenter_Login(const char* id, const char* password, int32_t& homecenterid);
+
     bool GetHomeCenterByUserID(int32_t userid, std::vector<int32_t>& homecenters); 
     bool Connect();
 private:

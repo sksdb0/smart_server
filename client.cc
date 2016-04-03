@@ -51,7 +51,7 @@ public:
     void login()
     {
         char buf[256];
-        sendpack(buf, "sn00001", "123456");
+        sendpack(buf, "center01", "111111");
         write(Homecenter_Login, StringPiece(buf, sizeof(messageNode)));
     }
   

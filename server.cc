@@ -78,7 +78,7 @@ private:
         if (type == Homecenter_Login)
         {
             int32_t homecenterid = 0;
-            if (_db.HomeCenterLogin(message.loginInfo.name, message.loginInfo.password, homecenterid))
+            if (_db.HomeCenter_Login(message.loginInfo.name, message.loginInfo.password, homecenterid))
             {
                 homecentermanager_.InsertHomeCenter(homecenterid, conn);
                 conn->settype(SMART_DEVICE);

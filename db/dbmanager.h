@@ -2,6 +2,7 @@
 #define DB_MANAGER_H_
 
 #include "dbaccess.h"
+#include "../smart_net.h"
 #include <vector>
 class DBManager
 {
@@ -17,7 +18,8 @@ public:
 
     bool HomeCenter_Login(const char* id, const char* password, int32_t& homecenterid);
 
-    bool GetHomeCenterByUserID(int32_t userid, std::vector<int32_t>& homecenters); 
+    bool GetHomeCenterIDByUserID(int32_t userid, std::vector<int32_t>& homecenters); 
+    bool GetHomeCenterInfoByID(int32_t userid, homecenterNode homecenters); 
     bool Connect();
 private:
     DBAccess _dbaccess;

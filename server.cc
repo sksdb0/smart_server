@@ -108,7 +108,7 @@ private:
         else if (type == Control)
         {
             std::vector<int32_t> homecenters;
-            if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
+            if (_db.GetHomeCenterIDByUserID(conn->getid(), homecenters))
             {
                 for (std::vector<int32_t>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
                 {
@@ -129,8 +129,28 @@ private:
         }
         else if (type == Get_Homecenter_id)
         {
+    //         homecenterNode homecenters;
+    //        if (_db.GetHomeCenterInfoByID(conn->getid(), homecenters))
+    //        {
+    //            char buf[256] = {0};
+    //            int32_t count = 0;
+    //            for (std::vector<homecenterNode>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
+    //            {
+    //                homecenterNode node = *it;
+    //                node.state = homecentermanager_.IsHomeCenterOnline(node.id);
+    //                memcpy(buf + sizeof(homecenterInfo::count) + sizeof(node) * count++, &node, sizeof(node));
+    //                LOG_INFO << node.id;
+    //                LOG_INFO << node.name;
+    //                LOG_INFO << node.state;
+    //            }
+    //            if (count > 0)
+    //            {
+    //                codec_.send(get_pointer(conn), type, StringPiece(buf, static_cast<int32_t>(sizeof(homecenterInfo::count) + sizeof(homecenterNode) * count)));
+    //            }
+    //        }
+
             std::vector<int32_t> homecenters;
-            if (_db.GetHomeCenterByUserID(conn->getid(), homecenters))
+            if (_db.GetHomeCenterIDByUserID(conn->getid(), homecenters))
             {
                 messageNode node;
                 int32_t index = 0;

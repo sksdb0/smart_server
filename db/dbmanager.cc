@@ -87,7 +87,7 @@ bool DBManager::HomeCenter_Login(const char* name, const char* password, int32_t
     return false;
 }
 
-bool DBManager::GetHomeCenterByUserID(int32_t userid, std::vector<int32_t>& homecenters)
+bool DBManager::GetHomeCenterIDByUserID(int32_t userid, std::vector<int32_t>& homecenters)
 {
     char sql[256] = {0};
     sprintf(sql, "SELECT center_id FROM smart_user_center_r WHERE user_id = %d", userid);
@@ -100,6 +100,21 @@ bool DBManager::GetHomeCenterByUserID(int32_t userid, std::vector<int32_t>& home
             if (!row) break;
             homecenters.push_back(atoi(row[0]));
         }while(row);
+        return true;
+    }
+    return false;
+}
+
+bool DBManager::GetHomeCenterInfoByID(int32_t userid, homecenterNode homecenters)
+{
+    char sql[256] = {0};
+    sprintf(sql, "SELECT center_id, center_name FROM smart_user_center_r WHERE user_id = %d", userid);
+    if (_dbaccess.Query(sql))
+    {
+        char** row = _dbaccess.FetchRow();
+        if (row == NULL) return false;
+        homecenters.id = atoi(row[0]);
+        strcpy(homecenters.name, row[1]);
         return true;
     }
     return false;

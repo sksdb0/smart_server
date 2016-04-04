@@ -1,7 +1,7 @@
 #ifndef _SMART_NET_H_
 #define _SMART_NET_H_
 
-
+#include <string.h>
 
 enum messageType
 {   
@@ -49,27 +49,38 @@ struct signupNode
 };
 
 // message Get_Homecenter_Info server to app
+enum homecenterstate
+{
+    offline = 0,
+    online
+};
+
 struct deviceNode
 {
-    int32_t centerid;
-    int32_t type;
     int32_t id;
+    int32_t type;
     char name[3][20];
 };
 
-// message Get Homecenter
 struct homecenterNode
 {
     char name[20];
-    int32_t device_count;
-    // deviceNode node[];
+    int32_t id;
+    unsigned char state;
+};
+
+// message Get_Homecenter
+struct homecenterInfo
+{
+    int32_t count;
+    void* data; // array homecenterNode
 };
 
 // message Lint_Speceified_Wifi app to homecenter
 struct link_specified_wifi_Node
 {
-    char wifiname[32];
-    char wifipassword[32];
+    char name[32];
+    char password[32];
     char serverip[20];
     int32_t port;
 };

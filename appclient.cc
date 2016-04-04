@@ -114,12 +114,12 @@ int main(int argc, char* argv[])
         std::string line;
         while (std::getline(std::cin, line))
         {
+//            char buf[256];
+//            sendpack(buf, "appclient", line.c_str());
+//            client.write(Control, StringPiece(buf, sizeof(messageNode)));
             char buf[256];
             sendpack(buf, "appclient", line.c_str());
-            client.write(Control, StringPiece(buf, sizeof(messageNode)));
-  //          char buf[256];
-  //          sendpack(buf, "appclient", line.c_str());
-  //          client.write(Get_Homecenter_id, StringPiece(buf, sizeof(messageNode)));
+            client.write(Get_Homecenter_id, StringPiece(buf, sizeof(messageNode)));
 //            char buf[256];
 //            sendpack(&buf, "XPXP", "11", "22", "33");
 //            client.write(Signup, StringPiece(buf, sizeof(signupNode)));

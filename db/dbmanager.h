@@ -19,7 +19,7 @@ public:
     bool HomeCenter_Login(const char* id, const char* password, int32_t& homecenterid);
 
     bool GetHomeCenterIDByUserID(int32_t userid, std::vector<int32_t>& homecenters); 
-    bool GetHomeCenterInfoByID(int32_t userid, homecenterNode homecenters); 
+    bool GetHomeCenterInfoByID(int32_t userid, homecenterNode& homecenters); 
     bool Connect();
 private:
     DBAccess _dbaccess;

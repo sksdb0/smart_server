@@ -129,38 +129,30 @@ private:
         }
         else if (type == Get_Homecenter_id)
         {
-    //         homecenterNode homecenters;
-    //        if (_db.GetHomeCenterInfoByID(conn->getid(), homecenters))
-    //        {
-    //            char buf[256] = {0};
-    //            int32_t count = 0;
-    //            for (std::vector<homecenterNode>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
-    //            {
-    //                homecenterNode node = *it;
-    //                node.state = homecentermanager_.IsHomeCenterOnline(node.id);
-    //                memcpy(buf + sizeof(homecenterInfo::count) + sizeof(node) * count++, &node, sizeof(node));
-    //                LOG_INFO << node.id;
-    //                LOG_INFO << node.name;
-    //                LOG_INFO << node.state;
-    //            }
-    //            if (count > 0)
-    //            {
-    //                codec_.send(get_pointer(conn), type, StringPiece(buf, static_cast<int32_t>(sizeof(homecenterInfo::count) + sizeof(homecenterNode) * count)));
-    //            }
-    //        }
-
             std::vector<int32_t> homecenters;
             if (_db.GetHomeCenterIDByUserID(conn->getid(), homecenters))
             {
-                messageNode node;
-                int32_t index = 0;
+                char buf[256] = {0};
+                int32_t count = 0;
                 for (std::vector<int32_t>::iterator it = homecenters.begin(); it != homecenters.end(); it++)
                 {
-                    node.int32_tbuf[index++] = *it;
+                    LOG_INFO << *it;
+                    homecenterNode node;
+                    if (_db.GetHomeCenterInfoByID(*it, node))
+                    {
+                        node.state = homecentermanager_.IsHomeCenterOnline(node.id);
+                        memcpy(buf + sizeof(homecenterInfo::count) + sizeof(node) * count++, &node, sizeof(node));
+                        LOG_INFO << node.id;
+                        LOG_INFO << node.name;
+                        LOG_INFO << node.state;
+                    }
                 }
-                char buf[128] = {0};
-                sendpack(buf, node);
-                codec_.send(get_pointer(conn), type, StringPiece(buf, sizeof(messageNode)));
+                if (count)
+                {
+                    memcpy(buf, &count, sizeof(int32_t));
+                    codec_.send(get_pointer(conn), Get_Homecenter_id_App, StringPiece(buf,\
+                        static_cast<int32_t>(sizeof(homecenterInfo::count) + sizeof(homecenterNode) * count)));
+                }
             }
         }
         else if (type == Heartbeat)

@@ -76,11 +76,20 @@ public:
                             signup_(conn, n, receiveTime);
                             break;
                         }
+                        case Get_Homecenter_id_App:
+                        {
+                            homecenterInfo n;
+                            const void* homecenterbuf = buf->peek();
+                            n.count = *static_cast<const int32_t*>(homecenterbuf);
+                            LOG_INFO << n.count;
+                            break;
+                        }
                         default:
                         {
                             messageNode n;
                             memcpy(&n, buf->peek(), sizeof(messageNode));
                             message_(conn, type, n, receiveTime);
+                            break;
                         }
                     }
                 }

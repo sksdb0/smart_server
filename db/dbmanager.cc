@@ -105,16 +105,17 @@ bool DBManager::GetHomeCenterIDByUserID(int32_t userid, std::vector<int32_t>& ho
     return false;
 }
 
-bool DBManager::GetHomeCenterInfoByID(int32_t userid, homecenterNode homecenters)
+bool DBManager::GetHomeCenterInfoByID(int32_t id, homecenterNode& homecenters)
 {
     char sql[256] = {0};
-    sprintf(sql, "SELECT center_id, center_name FROM smart_user_center_r WHERE user_id = %d", userid);
+    sprintf(sql, "SELECT center_name FROM smart_center_t WHERE center_id = %d", id);
     if (_dbaccess.Query(sql))
     {
         char** row = _dbaccess.FetchRow();
         if (row == NULL) return false;
-        homecenters.id = atoi(row[0]);
-        strcpy(homecenters.name, row[1]);
+        homecenters.id = id;
+        printf("%s\n", row[0]);
+        strcpy(homecenters.name, row[0]);
         return true;
     }
     return false;

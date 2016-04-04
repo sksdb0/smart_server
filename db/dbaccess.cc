@@ -25,6 +25,7 @@ bool DBAccess::Connect(const char* server, const char* user, const char* passwor
         LOG_INFO << "connect faild";
         return false;
     }
+    mysql_query(_conn, "SET NAMES 'UTF8'");
     _bIsConnect = true;
     return true;
 }

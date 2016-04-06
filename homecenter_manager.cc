@@ -15,7 +15,7 @@ void HomeCenterManager::onHeartBeat()
     {
         TcpConnectionPtr conn = it->second.lock();
         const Timestamp time = boost::any_cast<const Timestamp&>(conn->getContext());
-        LOG_INFO << time.toString().c_str();
+        LOG_INFO << timeDifference(Timestamp::now(), time);
     }
 }
 

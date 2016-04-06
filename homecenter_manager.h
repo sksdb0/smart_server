@@ -3,6 +3,7 @@
 
 #include <map>
 #include <muduo/net/TcpConnection.h>
+#include "smart_net.h"
 
 using namespace muduo::net;
 using namespace muduo;

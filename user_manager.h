@@ -2,6 +2,7 @@
 #define _MUDUO_EXAMPLE_ASIO_CHAT_DEVICE_MANAGER_H_
 
 #include <map>
+#include <list>
 #include <muduo/net/TcpConnection.h>
 
 using namespace muduo::net;
@@ -12,11 +13,12 @@ public:
     UserManager();
     ~UserManager();
 
-    void InsertUser(int32_t id, const TcpConnectionPtr& user);
+    void InsertUser(int32_t id, const TcpConnectionPtr& conn);
     void DeleteUser(int32_t id);
-    bool FindUser(int32_t id, const TcpConnectionPtr& user);
+    void DeleteUser(const TcpConnectionPtr& conn);
+    bool FindUser(int32_t id, TcpConnectionPtr& user);
 private:
-    typedef std::map<int, WeakTcpConnectionPtr> UserList;
+    typedef std::map<int32_t, WeakTcpConnectionPtr> UserList;
 
     UserList users_;
 };

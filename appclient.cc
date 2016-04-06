@@ -117,9 +117,13 @@ int main(int argc, char* argv[])
 //            char buf[256];
 //            sendpack(buf, "appclient", line.c_str());
 //            client.write(Control, StringPiece(buf, sizeof(messageNode)));
-            char buf[256];
-            sendpack(buf, "appclient", line.c_str());
-            client.write(Get_Homecenter_id, StringPiece(buf, sizeof(messageNode)));
+            char buf[4] = {0};
+            int32_t id = 10;
+            memcpy(buf, &id, sizeof(int32_t));
+            client.write(Get_Homecenter_Info_App, StringPiece(buf, sizeof(buf)));
+//            char buf[256];
+//            sendpack(buf, "appclient", line.c_str());
+//            client.write(Get_Homecenter_id, StringPiece(buf, sizeof(messageNode)));
 //            char buf[256];
 //            sendpack(&buf, "XPXP", "11", "22", "33");
 //            client.write(Signup, StringPiece(buf, sizeof(signupNode)));

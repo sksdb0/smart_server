@@ -24,7 +24,7 @@ void HomeCenterManager::InsertHomeCenter(const int32_t id, const TcpConnectionPt
     homecenters_.insert(std::pair<int32_t, WeakTcpConnectionPtr>(id, homecenter));
     homecenter->setContext(Timestamp::now());
     homecenter->setid(id);
-    homecenter->settype(SMART_DEVICE);
+    homecenter->settype(SMART_HOMECENTER);
 }
 
 void HomeCenterManager::DeleteHomeCenter(const int32_t id)
@@ -53,15 +53,11 @@ void HomeCenterManager::DeleteHomeCenter(const TcpConnectionPtr& homecenter)
 
 bool HomeCenterManager::FindHomeCenter(const int32_t id, TcpConnectionPtr& homecenter)
 {
-    bool bisfind;
+    bool bisfind = false;
     if (homecenters_.find(id) != homecenters_.end())
     {
         homecenter = homecenters_[id].lock();
-        bisfind = true;
-    }
-    else
-    {
-        bisfind = false;
+        if (homecenter) bisfind = true;
     }
 
     return bisfind;

@@ -1,8 +1,5 @@
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
-
+#include <muduo/net/EventLoop.h>
 #include <boost/bind.hpp>
 
 #include <set>
@@ -11,6 +8,7 @@
 #include "codec.h"
 #include "db/dbmanager.h"
 #include "homecenter_manager.h"
+#include "user_manager.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -55,7 +53,8 @@ private:
         }
         else 
         {
-            if (conn->gettype() == SMART_DEVICE) homecentermanager_.DeleteHomeCenter(conn);
+            if (conn->gettype() == SMART_HOMECENTER) homecentermanager_.DeleteHomeCenter(conn);
+            else if (conn->gettype() == SMART_USER) usermanager_.DeleteUser(conn->getid());
             connections_.erase(conn);
         }
     }
@@ -81,10 +80,8 @@ private:
             if (_db.HomeCenter_Login(message.loginInfo.name, message.loginInfo.password, homecenterid))
             {
                 homecentermanager_.InsertHomeCenter(homecenterid, conn);
-                conn->settype(SMART_DEVICE);
                 // answer client
-                char sztype[5] = {0};
-                memcpy(sztype, &type, sizeof(type));
+                char sztype[1] = {0};
                 codec_.send(get_pointer(conn), type, sztype);
             }
             else
@@ -97,6 +94,7 @@ private:
             int32_t userid = 0;
             if (_db.User_Login(message.loginInfo.name, message.loginInfo.password, userid))
             {
+                usermanager_.InsertUser(userid, conn);
                 conn->setid(userid);
                 LOG_INFO << "user login pass!";
             }
@@ -125,7 +123,27 @@ private:
         }
         else if (type == Get_Homecenter_Info)
         {
-                        
+            TcpConnectionPtr user;
+            if (usermanager_.FindUser(message.int32_tbuf[0], user))
+            {
+                LOG_INFO << "Get_Homecenter_Info_rtn" << user-> getid();
+            }
+        }
+        else if (type == Get_Homecenter_Info_App)
+        {
+            LOG_INFO << message.int32_tbuf[0];            
+            TcpConnectionPtr homecenter;
+            if (homecentermanager_.FindHomeCenter(message.int32_tbuf[0], homecenter))
+            {
+                char userid[4] = {0};
+                int32_t id = conn->getid();
+                memcpy(userid, &id, sizeof(id));
+                codec_.send(get_pointer(homecenter), Get_Homecenter_Info, StringPiece(userid, sizeof(userid)));
+            }
+            else
+            {
+                LOG_INFO << "homecenter is not online!";
+            }
         }
         else if (type == Get_Homecenter_id)
         {
@@ -142,9 +160,6 @@ private:
                     {
                         node.state = homecentermanager_.IsHomeCenterOnline(node.id);
                         memcpy(buf + sizeof(homecenterInfo::count) + sizeof(node) * count++, &node, sizeof(node));
-                        LOG_INFO << node.id;
-                        LOG_INFO << node.name;
-                        LOG_INFO << node.state;
                     }
                 }
                 if (count)
@@ -152,6 +167,10 @@ private:
                     memcpy(buf, &count, sizeof(int32_t));
                     codec_.send(get_pointer(conn), Get_Homecenter_id_App, StringPiece(buf,\
                         static_cast<int32_t>(sizeof(homecenterInfo::count) + sizeof(homecenterNode) * count)));
+                }
+                else
+                {
+                    LOG_INFO << "no homecenter!";
                 }
             }
         }
@@ -171,6 +190,7 @@ private:
     ConnectionList connections_;
     DBManager _db;
     HomeCenterManager homecentermanager_;
+    UserManager usermanager_;
 };
 
 int main(int argc, char* argv[])

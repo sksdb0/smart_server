@@ -23,6 +23,14 @@ enum messageType
     Get_Homecenter_Info_App
 };
 
+enum clientType
+{
+    SMART_UNKNOW = 0,
+    SMART_CONNECT,
+    SMART_HOMECENTER,
+    SMART_USER
+};
+
 enum deviceType
 {
     WallSwitch_One_Channel = 0,

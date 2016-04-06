@@ -96,6 +96,13 @@ private:
         {
             printf("control %s %s\n", node.loginInfo.name, node.loginInfo.password);
         }
+        else if (type == Get_Homecenter_Info)
+        {
+            char buf[4] = {0};
+            memcpy(buf, &node.int32_tbuf[0], sizeof(int32_t));
+            LOG_INFO << "GetHomecenInfo" << node.int32_tbuf[0];
+            write(Get_Homecenter_Info, StringPiece(buf, sizeof(buf)));
+        }
     }
   
     TcpClient client_;
